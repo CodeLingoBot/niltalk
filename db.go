@@ -20,7 +20,7 @@ type DBconn struct {
 	conn redis.Conn
 }
 
-// Initialize a db pool.
+// NewDBpool: Initialize a db pool.
 func NewDBpool(address string, password string, active int, idle int) *DBpool {
 	pool := redis.Pool{
 		MaxActive: active,
@@ -50,7 +50,7 @@ func (dp *DBpool) Close() {
 	dp.pool.Close()
 }
 
-// Retrieve a map from the db.
+// GetMap retrieves a map from the db.
 func (db *DBconn) GetMap(key string, out interface{}) (bool, error) {
 	res, err := redis.Values(db.conn.Do("HGETALL", key))
 
@@ -68,21 +68,21 @@ func (db *DBconn) GetMap(key string, out interface{}) (bool, error) {
 	return true, nil
 }
 
-// Write a map to the db.
+// PutMap writes a map to the db.
 func (db *DBconn) PutMap(args ...interface{}) error {
 	_, err := db.conn.Do("HMSET", args...)
 
 	return err
 }
 
-// Write a set to the db.
+// PutSet writes a set to the db.
 func (db *DBconn) PutSet(args ...interface{}) error {
 	_, err := db.conn.Do("SADD", args...)
 
 	return err
 }
 
-// Set a key's expiry.
+// Expire: Set a key's expiry.
 func (db *DBconn) Expire(key string, seconds int) error {
 	_, err := db.conn.Do("EXPIRE", key, seconds)
 
@@ -96,7 +96,7 @@ func (db *DBconn) Delete(key string) error {
 	return err
 }
 
-// Check if a key exists in the db.
+// Exists checks if a key exists in the db.
 func (db *DBconn) Exists(key string) (bool, error) {
 	exists, err := redis.Bool(db.conn.Do("EXISTS", key))
 
@@ -107,7 +107,7 @@ func (db *DBconn) Exists(key string) (bool, error) {
 	return exists, nil
 }
 
-// Check if a value exists in a set.
+// SetValueExists checks if a value exists in a set.
 func (db *DBconn) SetValueExists(key string, value string) (bool, error) {
 	exists, err := redis.Bool(db.conn.Do("SISMEMBER", key, value))
 
